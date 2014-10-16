@@ -12,6 +12,7 @@
 
 #include "Core.h"
 
+
 struct blob_location {
 	uint32_t thing;
 	uint32_t offset;
@@ -109,6 +110,175 @@ uint32_t GetSizeOfChildAtOffset(Blob_t blob, uint32_t offset) {
 	return size;
 }
 
+enum ExprOp {
+	opFalse = 0,					// unconditionally false
+	opTrue,							// unconditionally true
+	opIdent,						// match canonical code [string]
+	opAppleAnchor,					// signed by Apple as Apple's product
+	opAnchorHash,					// match anchor [cert hash]
+	opInfoKeyValue,					// *legacy* - use opInfoKeyField [key; value]
+	opAnd,							// binary prefix expr AND expr [expr; expr]
+	opOr,							// binary prefix expr OR expr [expr; expr]
+	opCDHash,						// match hash of CodeDirectory directly [cd hash]
+	opNot,							// logical inverse [expr]
+	opInfoKeyField,					// Info.plist key field [string; match suffix]
+	opCertField,					// Certificate field [cert index; field name; match suffix]
+	opTrustedCert,					// require trust settings to approve one particular cert [cert index]
+	opTrustedCerts,					// require trust settings to approve the cert chain
+	opCertGeneric,					// Certificate component by OID [cert index; oid; match suffix]
+	opAppleGenericAnchor,			// signed by Apple in any capacity
+	opEntitlementField,				// entitlement dictionary field [string; match suffix]
+	opCertPolicy,					// Certificate policy by OID [cert index; oid; match suffix]
+	opNamedAnchor,					// named anchor type
+	opNamedCode,					// named subroutine
+	exprOpCount						// (total opcode count in use)
+};
+
+enum SyntaxLevel {
+	slPrimary,		// syntax primary
+	slAnd,			// conjunctive
+	slOr,			// disjunctive
+	slTop			// where we start
+};
+
+uint32_t PrintReq(BufferRef data, uint32_t offset, enum SyntaxLevel level) {
+	uint32_t req_code = 0;
+	memcpy(&req_code, &(data->data[offset]), sizeof(uint32_t));
+	req_code = OSSwapHostToBigInt32(req_code);
+	uint32_t size = sizeof(uint32_t);
+	switch (req_code) {
+		case opFalse: {
+			printf("never");
+			break;
+		}
+		case opTrue: {
+			printf("always");
+			break;
+		}
+		case opIdent: {
+			printf("identifier \"");
+			uint32_t length = 0;
+			memcpy(&length, &(data->data[offset+size]), sizeof(uint32_t));
+			length = OSSwapHostToBigInt32(length);
+			for (uint32_t index = 0; index < length; index++) {
+				printf("%c",data->data[offset+(size*2)+index]);
+			}
+			printf("\"");
+			size += sizeof(uint32_t) + length + (4 - (length % 4));
+			break;
+		}
+		case opAppleAnchor: {
+			printf("anchor apple");
+			break;
+		}
+		case opAnchorHash: {
+			printf("certificate");
+			break;
+		}
+		case opInfoKeyValue: {
+			break;
+		}
+		case opAnd: {
+			if (level < slAnd)
+				printf("(");
+			size += PrintReq(data, offset+size, slPrimary);
+			printf(" and ");
+			size += PrintReq(data, offset+size, slPrimary);
+			if (level < slAnd)
+				printf(")");
+			break;
+		}
+		case opOr: {
+			if (level <= slOr)
+				printf("(");
+			size += PrintReq(data, offset+size, slPrimary);
+			printf(" or ");
+			size += PrintReq(data, offset+size, slPrimary);
+			if (level < slOr)
+				printf(")");
+			break;
+		}
+		case opCDHash: {
+			printf("cdhash ");
+			break;
+		}
+		case opNot: {
+			printf("! ");
+			size += PrintReq(data, offset+size, slPrimary);
+			break;
+		}
+		case opInfoKeyField: {
+			break;
+		}
+		case opCertField: {
+			printf("certificate");
+			uint32_t length = 0;
+			size += sizeof(uint32_t);
+			memcpy(&length, &(data->data[offset+size]), sizeof(uint32_t));
+			length = OSSwapHostToBigInt32(length);
+			size += sizeof(uint32_t) + length + (4 - (length % 4));
+			size += sizeof(uint32_t);
+			memcpy(&length, &(data->data[offset+size]), sizeof(uint32_t));
+			length = OSSwapHostToBigInt32(length);
+			size += sizeof(uint32_t) + length + (4 - (length % 4));
+			break;
+		}
+		case opTrustedCert: {
+			break;
+		}
+		case opTrustedCerts: {
+			break;
+		}
+		case opCertGeneric: {
+			printf("generic");
+			uint32_t length = 0;
+			size += sizeof(uint32_t);
+			memcpy(&length, &(data->data[offset+size]), sizeof(uint32_t));
+			length = OSSwapHostToBigInt32(length);
+			size += sizeof(uint32_t) + length + (4 - (length % 4));
+			size += sizeof(uint32_t);
+			break;
+		}
+		case opAppleGenericAnchor: {
+			printf("anchor apple generic");
+			break;
+		}
+		case opEntitlementField: {
+			break;
+		}
+		case opCertPolicy: {
+			break;
+		}
+		case opNamedAnchor: {
+			break;
+		}
+		case opNamedCode: {
+			break;
+		}
+		default: {
+			break;
+		}
+	}
+	printf(" ");
+	
+	return size;
+}
+
+void ParseRequirement(Blob_t blob) {
+	uint32_t and_level = 0;
+	uint32_t or_level = 0;
+	uint32_t level = 0;
+	uint32_t last_level = 0;
+	
+	printf("\tRequirement: ");
+	BufferRef data = blob->data;
+	uint64_t offset = 8;
+	while (offset < data->length) {
+		offset += PrintReq(data, offset, slTop);
+	}
+	printf("\n");
+}
+
 Blob_t FindBlobs(BufferRef data, uint32_t offset) {
 	Blob_t master = calloc(1, sizeof(struct Blob));
 	master->magic = ParseMagic(data);
@@ -132,6 +302,9 @@ Blob_t FindBlobs(BufferRef data, uint32_t offset) {
 				BufferRef child_data_ref = ((Blob_t)(master->children->items[index]))->data;
 				NSData *plist = [NSData dataWithBytes:&(child_data_ref->data[8]) length:child_data_ref->length-8];
 				NSLog(@"%@", [NSPropertyListSerialization propertyListWithData:plist options:0 format:nil error:nil]);
+			}
+			if (((Blob_t)(master->children->items[index]))->magic == kSecCodeMagicRequirement) {
+				ParseRequirement(master->children->items[index]);
 			}
 		}
 	}
