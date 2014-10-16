@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>DDE36886-07F2-4306-B0E7-E94F4108898A</string>
+	<key>IDESourceControlProjectName</key>
+	<string>SignatureParse</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>C757099A46D01A1C1B06AA99FE606FCC80230B99</key>
+		<string>github.com:samdmarshall/SignatureParse.git</string>
+		<key>F09F31DD51BF51244351F594DC43B25CE185FB38</key>
+		<string>github.com:samdmarshall/Core-Lib.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>SignatureParse.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>C757099A46D01A1C1B06AA99FE606FCC80230B99</key>
+		<string>../..</string>
+		<key>F09F31DD51BF51244351F594DC43B25CE185FB38</key>
+		<string>../..Core/</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>github.com:samdmarshall/SignatureParse.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>C757099A46D01A1C1B06AA99FE606FCC80230B99</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>F09F31DD51BF51244351F594DC43B25CE185FB38</string>
+			<key>IDESourceControlWCCName</key>
+			<string>Core</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>C757099A46D01A1C1B06AA99FE606FCC80230B99</string>
+			<key>IDESourceControlWCCName</key>
+			<string>SignatureParse</string>
+		</dict>
+	</array>
+</dict>
+</plist>

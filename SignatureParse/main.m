@@ -9,13 +9,25 @@
 #import <Foundation/Foundation.h>
 #import <Security/Security.h>
 #import <Security/CSCommonPriv.h>
-#import <mach-o/arch.h>
 
-uint64_t counter = 0;
+#include "Core.h"
 
-NSInteger ParseMagic(NSData *data, uint32_t offset) {
+struct blob_location {
+	uint32_t thing;
+	uint32_t offset;
+};
+
+struct Blob {
+	uint32_t magic;
+	BufferRef data;
+	ArrayRef children;
+};
+
+typedef struct Blob * Blob_t;
+
+NSInteger ParseMagic(BufferRef data) {
 	uint8_t magic[4] = {0};
-	[data getBytes:&magic range:NSMakeRange(offset, sizeof(uint32_t))];
+	memcpy(&magic, &(data->data[0]), sizeof(uint32_t));
 	if (magic[0] == 0xfa && magic[1] == 0xde) {
 		printf("found magic -- ");
 		switch (magic[2]) {
@@ -60,62 +72,75 @@ NSInteger ParseMagic(NSData *data, uint32_t offset) {
 	return kSecCodeMagicByte;
 }
 
-NSInteger ParseLength(NSData *data) {
+uint32_t ParseLengthWithOffset(BufferRef data, uint32_t offset) {
 	uint32_t length = 0;
-	[data getBytes:&length range:NSMakeRange(4, sizeof(uint32_t))];
+	memcpy(&length, &(data->data[offset]), sizeof(uint32_t));
 	length = OSSwapHostToBigInt32(length);
 	return length;
 }
 
-struct BlobLocation {
-	uint32_t thing;
-	uint32_t offset;
-};
+uint32_t ParseLength(BufferRef data) {
+	return ParseLengthWithOffset(data, 4);
+}
 
-@interface Blob : NSObject
-@property (nonatomic, readwrite) NSInteger magic;
-@property (nonatomic, readwrite) struct BlobLocation position;
-@property (nonatomic, strong) NSData *data;
-@property (nonatomic, strong) NSArray *children;
-@end
+bool BlobHasChildren(Blob_t blob) {
+	return (blob->magic == kSecCodeMagicEmbeddedSignature || blob->magic == kSecCodeMagicRequirementSet);
+}
 
-@implementation Blob
+uint32_t ChildCountFromBlob(Blob_t blob) {
+	uint32_t count = 0;
+	memcpy(&count, &(blob->data->data[8]), sizeof(uint32_t));
+	count = OSSwapHostToBigInt32(count);
+	return count;
+}
 
-@end
+struct blob_location GetChildAtIndex(Blob_t blob, uint32_t index) {
+	struct blob_location loc = {0};
+	memcpy(&loc, &(blob->data->data[12+(sizeof(struct blob_location)*index)]), sizeof(struct blob_location));
+	loc.thing = OSSwapHostToBigInt32(loc.thing);
+	loc.offset = OSSwapHostToBigInt32(loc.offset);
+	return loc;
+}
+
+uint32_t GetSizeOfChildAtOffset(Blob_t blob, uint32_t offset) {
+	uint32_t size = 0;
+	memcpy(&size, &(blob->data->data[offset+4]), sizeof(uint32_t));
+	size = OSSwapHostToBigInt32(size);
+	return size;
+}
+
+Blob_t FindBlobs(BufferRef data) {
+	Blob_t master = calloc(1, sizeof(struct Blob));
+	master->magic = ParseMagic(data);
+	master->data = CreateBufferFromBufferWithRange(data, RangeCreate(0, ParseLength(data)));
+	master->children = calloc(1, sizeof(struct CoreInternalArray));
+	bool result = BlobHasChildren(master);
+	if (result) {
+		master->children->count = ChildCountFromBlob(master);
+		master->children->items = calloc(master->children->count, sizeof(Pointer));
+		for (uint32_t index = 0; index < master->children->count; index++) {
+			struct blob_location location = GetChildAtIndex(master, index);
+			uint32_t length = GetSizeOfChildAtOffset(master, location.offset);
+			Range child_range = RangeCreate(location.offset, length);
+			BufferRef child_data = CreateBufferFromBufferWithRange(data, child_range);
+			master->children->items[index] = FindBlobs(child_data);
+			if (((Blob_t)(master->children->items[index]))->magic == kSecCodeMagicEntitlement) {
+				BufferRef child_data_ref = ((Blob_t)(master->children->items[index]))->data;
+				NSData *plist = [NSData dataWithBytes:&(child_data_ref->data[8]) length:child_data_ref->length-8];
+				NSLog(@"%@", [NSPropertyListSerialization propertyListWithData:plist options:0 format:nil error:nil]);
+			}
+		}
+	}
+	return master;
+}
 
 int main(int argc, const char * argv[]) {
 	@autoreleasepool {
 		if (argc == 2) {
-			NSData *signatureData = [NSData dataWithContentsOfFile:[NSString stringWithFormat:@"%s",argv[1]]];
-			Blob *superBlob = [[Blob alloc] init];
-			[superBlob setMagic:ParseMagic(signatureData, 0)];
-			counter += sizeof(uint32_t);
-			[superBlob setData:[NSData dataWithBytes:[signatureData bytes] length:ParseLength(signatureData)]];
-			counter += sizeof(uint32_t);
-			uint32_t children = 0;
-			[signatureData getBytes:&children range:NSMakeRange(counter, sizeof(uint32_t))];
-			counter += sizeof(uint32_t);
-			children = OSSwapHostToBigInt32(children);
-			NSMutableArray *childArray = [NSMutableArray new];
-			for (uint32_t index = 0; index < children; index++) {
-				struct BlobLocation *loc = calloc(1, sizeof(struct BlobLocation));
-				[signatureData getBytes:loc range:NSMakeRange(counter, sizeof(struct BlobLocation))];
-				loc->offset = OSSwapHostToBigInt32(loc->offset);
-				counter += sizeof(struct BlobLocation);
-				printf("found blob at: %d\n", loc->offset);
-				Blob *child = [[Blob alloc] init];
-				[child setMagic:ParseMagic(signatureData, loc->offset)];
-				uint8_t *offset = (char*)[signatureData bytes] + loc->offset;
-				NSData *childData = [NSData dataWithBytesNoCopy:offset length:[signatureData length] - loc->offset];
-				[child setData:childData];
-				[child setPosition:*loc];
-				if ([child magic] == kSecCodeMagicEntitlement) {
-					NSData *plist = [NSData dataWithBytes:[[child data] bytes]+8 length:ParseLength([child data])];
-					NSLog(@"%@", [NSPropertyListSerialization propertyListWithData:plist options:0 format:nil error:nil]);
-				}
-				[childArray addObject:child];
-			}
-			[superBlob setChildren:childArray];
+			BufferRef signature_data = CreateBufferFromFilePath((char*)argv[1]);
+			
+			Blob_t master = FindBlobs(signature_data);
+			
 		}
 	}
     return 0;

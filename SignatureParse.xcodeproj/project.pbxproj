@@ -9,6 +9,12 @@
 /* Begin PBXBuildFile section */
 		229FB16619EF00FA00D47EA2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 229FB16519EF00FA00D47EA2 /* main.m */; };
 		229FB16D19EF023900D47EA2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 229FB16C19EF023900D47EA2 /* Security.framework */; };
+		229FB18519F010A400D47EA2 /* Buffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 229FB17219F010A400D47EA2 /* Buffer.c */; };
+		229FB18619F010A400D47EA2 /* CFDataAddition.c in Sources */ = {isa = PBXBuildFile; fileRef = 229FB17619F010A400D47EA2 /* CFDataAddition.c */; };
+		229FB18719F010A400D47EA2 /* CFDictionaryAddition.c in Sources */ = {isa = PBXBuildFile; fileRef = 229FB17819F010A400D47EA2 /* CFDictionaryAddition.c */; };
+		229FB18819F010A400D47EA2 /* CFStringAddition.c in Sources */ = {isa = PBXBuildFile; fileRef = 229FB17A19F010A400D47EA2 /* CFStringAddition.c */; };
+		229FB18919F010A400D47EA2 /* CFTypeAddition.c in Sources */ = {isa = PBXBuildFile; fileRef = 229FB17C19F010A400D47EA2 /* CFTypeAddition.c */; };
+		229FB18A19F010A400D47EA2 /* File.c in Sources */ = {isa = PBXBuildFile; fileRef = 229FB17F19F010A400D47EA2 /* File.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -27,6 +33,26 @@
 		229FB16219EF00FA00D47EA2 /* SignatureParse */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SignatureParse; sourceTree = BUILT_PRODUCTS_DIR; };
 		229FB16519EF00FA00D47EA2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		229FB16C19EF023900D47EA2 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		229FB17019F010A400D47EA2 /* Array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Array.h; path = Core/Core/Array.h; sourceTree = SOURCE_ROOT; };
+		229FB17119F010A400D47EA2 /* Attributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Attributes.h; path = Core/Core/Attributes.h; sourceTree = SOURCE_ROOT; };
+		229FB17219F010A400D47EA2 /* Buffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Buffer.c; path = Core/Core/Buffer.c; sourceTree = SOURCE_ROOT; };
+		229FB17319F010A400D47EA2 /* Buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Buffer.h; path = Core/Core/Buffer.h; sourceTree = SOURCE_ROOT; };
+		229FB17419F010A400D47EA2 /* Core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Core.h; path = Core/Core/Core.h; sourceTree = SOURCE_ROOT; };
+		229FB17619F010A400D47EA2 /* CFDataAddition.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = CFDataAddition.c; sourceTree = "<group>"; };
+		229FB17719F010A400D47EA2 /* CFDataAddition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFDataAddition.h; sourceTree = "<group>"; };
+		229FB17819F010A400D47EA2 /* CFDictionaryAddition.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = CFDictionaryAddition.c; sourceTree = "<group>"; };
+		229FB17919F010A400D47EA2 /* CFDictionaryAddition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFDictionaryAddition.h; sourceTree = "<group>"; };
+		229FB17A19F010A400D47EA2 /* CFStringAddition.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = CFStringAddition.c; sourceTree = "<group>"; };
+		229FB17B19F010A400D47EA2 /* CFStringAddition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFStringAddition.h; sourceTree = "<group>"; };
+		229FB17C19F010A400D47EA2 /* CFTypeAddition.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = CFTypeAddition.c; sourceTree = "<group>"; };
+		229FB17D19F010A400D47EA2 /* CFTypeAddition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFTypeAddition.h; sourceTree = "<group>"; };
+		229FB17E19F010A400D47EA2 /* Endian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Endian.h; path = Core/Core/Endian.h; sourceTree = SOURCE_ROOT; };
+		229FB17F19F010A400D47EA2 /* File.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = File.c; path = Core/Core/File.c; sourceTree = SOURCE_ROOT; };
+		229FB18019F010A400D47EA2 /* File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = File.h; path = Core/Core/File.h; sourceTree = SOURCE_ROOT; };
+		229FB18119F010A400D47EA2 /* Logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Logging.h; path = Core/Core/Logging.h; sourceTree = SOURCE_ROOT; };
+		229FB18219F010A400D47EA2 /* Number.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Number.h; path = Core/Core/Number.h; sourceTree = SOURCE_ROOT; };
+		229FB18319F010A400D47EA2 /* Pointer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Pointer.h; path = Core/Core/Pointer.h; sourceTree = SOURCE_ROOT; };
+		229FB18419F010A400D47EA2 /* Range.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Range.h; path = Core/Core/Range.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,9 +87,46 @@
 		229FB16419EF00FA00D47EA2 /* SignatureParse */ = {
 			isa = PBXGroup;
 			children = (
+				229FB18B19F010A900D47EA2 /* Core */,
 				229FB16519EF00FA00D47EA2 /* main.m */,
 			);
 			path = SignatureParse;
+			sourceTree = "<group>";
+		};
+		229FB17519F010A400D47EA2 /* CoreFoundation */ = {
+			isa = PBXGroup;
+			children = (
+				229FB17619F010A400D47EA2 /* CFDataAddition.c */,
+				229FB17719F010A400D47EA2 /* CFDataAddition.h */,
+				229FB17819F010A400D47EA2 /* CFDictionaryAddition.c */,
+				229FB17919F010A400D47EA2 /* CFDictionaryAddition.h */,
+				229FB17A19F010A400D47EA2 /* CFStringAddition.c */,
+				229FB17B19F010A400D47EA2 /* CFStringAddition.h */,
+				229FB17C19F010A400D47EA2 /* CFTypeAddition.c */,
+				229FB17D19F010A400D47EA2 /* CFTypeAddition.h */,
+			);
+			name = CoreFoundation;
+			path = Core/Core/CoreFoundation;
+			sourceTree = SOURCE_ROOT;
+		};
+		229FB18B19F010A900D47EA2 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				229FB17019F010A400D47EA2 /* Array.h */,
+				229FB17119F010A400D47EA2 /* Attributes.h */,
+				229FB17219F010A400D47EA2 /* Buffer.c */,
+				229FB17319F010A400D47EA2 /* Buffer.h */,
+				229FB17419F010A400D47EA2 /* Core.h */,
+				229FB17519F010A400D47EA2 /* CoreFoundation */,
+				229FB17E19F010A400D47EA2 /* Endian.h */,
+				229FB17F19F010A400D47EA2 /* File.c */,
+				229FB18019F010A400D47EA2 /* File.h */,
+				229FB18119F010A400D47EA2 /* Logging.h */,
+				229FB18219F010A400D47EA2 /* Number.h */,
+				229FB18319F010A400D47EA2 /* Pointer.h */,
+				229FB18419F010A400D47EA2 /* Range.h */,
+			);
+			name = Core;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -123,6 +186,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				229FB16619EF00FA00D47EA2 /* main.m in Sources */,
+				229FB18519F010A400D47EA2 /* Buffer.c in Sources */,
+				229FB18919F010A400D47EA2 /* CFTypeAddition.c in Sources */,
+				229FB18719F010A400D47EA2 /* CFDictionaryAddition.c in Sources */,
+				229FB18619F010A400D47EA2 /* CFDataAddition.c in Sources */,
+				229FB18819F010A400D47EA2 /* CFStringAddition.c in Sources */,
+				229FB18A19F010A400D47EA2 /* File.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -243,6 +312,7 @@
 				229FB16B19EF00FA00D47EA2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
