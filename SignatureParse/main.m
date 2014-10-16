@@ -109,21 +109,25 @@ uint32_t GetSizeOfChildAtOffset(Blob_t blob, uint32_t offset) {
 	return size;
 }
 
-Blob_t FindBlobs(BufferRef data) {
+Blob_t FindBlobs(BufferRef data, uint32_t offset) {
 	Blob_t master = calloc(1, sizeof(struct Blob));
 	master->magic = ParseMagic(data);
-	master->data = CreateBufferFromBufferWithRange(data, RangeCreate(0, ParseLength(data)));
+	printf("\tOffset: %i\n",offset);
+	uint32_t size = ParseLength(data);
+	printf("\tSize: %i\n",size);
+	master->data = CreateBufferFromBufferWithRange(data, RangeCreate(0, size));
 	master->children = calloc(1, sizeof(struct CoreInternalArray));
 	bool result = BlobHasChildren(master);
 	if (result) {
 		master->children->count = ChildCountFromBlob(master);
+		printf("\tChildren: %i\n",master->children->count);
 		master->children->items = calloc(master->children->count, sizeof(Pointer));
 		for (uint32_t index = 0; index < master->children->count; index++) {
 			struct blob_location location = GetChildAtIndex(master, index);
 			uint32_t length = GetSizeOfChildAtOffset(master, location.offset);
 			Range child_range = RangeCreate(location.offset, length);
 			BufferRef child_data = CreateBufferFromBufferWithRange(data, child_range);
-			master->children->items[index] = FindBlobs(child_data);
+			master->children->items[index] = FindBlobs(child_data, location.offset);
 			if (((Blob_t)(master->children->items[index]))->magic == kSecCodeMagicEntitlement) {
 				BufferRef child_data_ref = ((Blob_t)(master->children->items[index]))->data;
 				NSData *plist = [NSData dataWithBytes:&(child_data_ref->data[8]) length:child_data_ref->length-8];
@@ -139,7 +143,7 @@ int main(int argc, const char * argv[]) {
 		if (argc == 2) {
 			BufferRef signature_data = CreateBufferFromFilePath((char*)argv[1]);
 			
-			Blob_t master = FindBlobs(signature_data);
+			Blob_t master = FindBlobs(signature_data, 0);
 			
 		}
 	}
